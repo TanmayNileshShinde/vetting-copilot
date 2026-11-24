@@ -53,9 +53,13 @@ export const HeadcountChart: React.FC<HeadcountChartProps> = ({ firmographics })
             <span>PAYROLL SCALE</span>
           </div>
           <div className="text-lg font-mono font-black text-white">
-            {firmographics.headcountEstimate?.toLocaleString() || "120+"}
+            {firmographics.isUnlisted
+              ? "UNLISTED"
+              : firmographics.employeeCountRange || firmographics.headcountEstimate?.toLocaleString() || "N/A"}
           </div>
-          <div className="text-[9px] font-mono text-slate-500">VERIFIED PROFILES</div>
+          <div className="text-[9px] font-mono text-slate-500">
+            {firmographics.isUnlisted ? "0-10 ESTIMATED" : "VERIFIED TIER"}
+          </div>
         </div>
 
         <div className="skeuo-inset p-2.5">
@@ -63,7 +67,7 @@ export const HeadcountChart: React.FC<HeadcountChartProps> = ({ firmographics })
             <TrendingUp className="h-3 w-3 text-emerald-400" />
             <span>12-MO VELOCITY</span>
           </div>
-          <div className="text-lg font-mono font-black text-emerald-400">
+          <div className="text-lg font-mono font-black text-emerald-400 truncate">
             {firmographics.headcountGrowthRate || "+14.2% YoY"}
           </div>
           <div className="text-[9px] font-mono text-slate-500">TRAJECTORY</div>
@@ -75,7 +79,7 @@ export const HeadcountChart: React.FC<HeadcountChartProps> = ({ firmographics })
             <span>C-SUITE POOL</span>
           </div>
           <div className="text-lg font-mono font-black text-white">
-            {firmographics.executiveCount || 12}
+            {firmographics.executiveCount ?? 12}
           </div>
           <div className="text-[9px] font-mono text-slate-500">EXECUTIVE TIER</div>
         </div>
@@ -118,7 +122,7 @@ export const HeadcountChart: React.FC<HeadcountChartProps> = ({ firmographics })
               fontSize={10}
               tickLine={false}
               axisLine={{ stroke: "#1e293b" }}
-              domain={["dataMin - 10", "dataMax + 10"]}
+              domain={[0, "auto"]}
             />
             <Tooltip
               contentStyle={{

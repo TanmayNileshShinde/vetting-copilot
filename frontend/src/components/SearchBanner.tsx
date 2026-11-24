@@ -19,6 +19,10 @@ export const SearchBanner: React.FC<SearchBannerProps> = ({
   const [loadingStep, setLoadingStep] = useState(0);
 
   React.useEffect(() => {
+    setInputVal(activeQuery);
+  }, [activeQuery]);
+
+  React.useEffect(() => {
     if (!isLoading) {
       setLoadingStep(0);
       return;

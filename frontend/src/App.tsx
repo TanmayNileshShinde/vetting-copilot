@@ -92,25 +92,48 @@ export const App: React.FC = () => {
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center space-x-3.5">
-                  <div className="h-12 w-12 rounded-xl bg-black border border-white/10 flex items-center justify-center text-blue-400 font-mono font-black text-xl shadow-inner">
-                    {report.companyName.charAt(0)}
+                  <div className="h-12 w-12 rounded-xl bg-black border border-white/10 flex items-center justify-center text-blue-400 font-mono font-black text-xl shadow-inner overflow-hidden">
+                    {report.firmographics.logoUrl ? (
+                      <img
+                        src={report.firmographics.logoUrl}
+                        alt={report.companyName}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span>{report.companyName.charAt(0)}</span>
+                    )}
                   </div>
                   <div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-xl font-mono font-black text-white tracking-wide">
                         {report.companyName}
                       </h2>
                       <span className="text-xs px-2 py-0.5 rounded bg-black/60 border border-white/10 text-slate-300 font-mono">
                         {report.targetDomain}
                       </span>
+                      {report.firmographics.companyType && (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-blue-950/60 border border-blue-700/40 text-blue-300 font-mono uppercase">
+                          {report.firmographics.companyType}
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-mono text-slate-400">
                       <span>AUDIT-REF: {report.auditId}</span>
                       <span>•</span>
-                      <span className="text-emerald-400 font-bold flex items-center">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        LIVE CITATIONS VERIFIED
-                      </span>
+                      {report.auditId.endsWith("-DEMO") ? (
+                        <span className="text-amber-400 font-bold flex items-center">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          DEMO FALLBACK (START BACKEND PORT 5000 FOR LIVE APIS)
+                        </span>
+                      ) : (
+                        <span className="text-emerald-400 font-bold flex items-center">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          LIVE OLOSTEP + CRUSTDATA VERIFIED
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

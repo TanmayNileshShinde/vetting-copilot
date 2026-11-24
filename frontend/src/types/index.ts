@@ -14,14 +14,21 @@ export interface CompanyFirmographics {
   crustdataId?: number;
   website?: string;
   headcountEstimate?: number;
+  employeeCountRange?: string;
   headcountGrowthRate?: string;
   headcountHistory: Array<{ month: string; employees: number }>;
   executiveCount?: number;
   recentExecutiveTurnover?: number;
   fundingStage?: string;
+  companyType?: string;
+  yearFounded?: number;
+  industries?: string[];
+  logoUrl?: string;
+  description?: string;
   linkedinUrl?: string;
   hqLocation?: string;
   source: string;
+  isUnlisted?: boolean;
 }
 
 export interface OlostepScrapeResult {
