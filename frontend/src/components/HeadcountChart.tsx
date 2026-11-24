@@ -1,7 +1,7 @@
 import React from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import type { CompanyFirmographics } from "../types";
-import { Users, TrendingUp, Briefcase, MapPin, ExternalLink } from "lucide-react";
+import { Users, TrendingUp, Briefcase, ExternalLink } from "lucide-react";
 
 interface HeadcountChartProps {
   firmographics: CompanyFirmographics;
@@ -11,146 +11,142 @@ export const HeadcountChart: React.FC<HeadcountChartProps> = ({ firmographics })
   const data = firmographics.headcountHistory || [];
 
   return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800/80 mb-5 gap-3">
-        <div>
-          <div className="flex items-center space-x-2">
-            <h3 className="text-sm font-bold text-white tracking-wide">
-              Workforce Velocity & Organization Structure
-            </h3>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              Crustdata Signal
-            </span>
-          </div>
-          <p className="text-xs text-slate-400">
-            Real-time employment trajectory and leadership continuity
-          </p>
+    <div className="skeuo-panel p-6 flex flex-col justify-between">
+      {/* 4 Corner Screws */}
+      <div className="absolute top-2.5 left-2.5 skeuo-screw" />
+      <div className="absolute top-2.5 right-2.5 skeuo-screw" />
+      <div className="absolute bottom-2.5 left-2.5 skeuo-screw" />
+      <div className="absolute bottom-2.5 right-2.5 skeuo-screw" />
+
+      {/* Header Plate */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 mb-4 gap-2">
+        <div className="flex items-center space-x-2">
+          <div className="skeuo-led-green" />
+          <h3 className="text-xs font-mono font-black tracking-widest text-slate-200 uppercase">
+            WORKFORCE EXPANSION OSCILLOSCOPE
+          </h3>
         </div>
 
-        {/* Firmographic metadata pills */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          {firmographics.hqLocation && (
-            <span className="inline-flex items-center text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60">
-              <MapPin className="h-3 w-3 mr-1 text-slate-400" />
-              {firmographics.hqLocation}
-            </span>
-          )}
+        <div className="flex items-center space-x-2 text-[10px] font-mono">
+          <span className="px-2 py-0.5 rounded bg-black/60 border border-white/10 text-slate-400">
+            BUS: CRUSTDATA B2B
+          </span>
           {firmographics.linkedinUrl && (
             <a
               href={firmographics.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-blue-400 hover:text-blue-300 bg-blue-950/40 hover:bg-blue-900/40 px-2.5 py-1 rounded-lg border border-blue-800/40 transition"
+              className="skeuo-btn px-2 py-0.5 rounded text-blue-400 hover:text-blue-300 flex items-center space-x-1"
             >
-              <span>LinkedIn</span>
-              <ExternalLink className="h-3 w-3 ml-1" />
+              <span>DIR</span>
+              <ExternalLink className="h-2.5 w-2.5" />
             </a>
           )}
         </div>
       </div>
 
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/70">
-          <div className="flex items-center space-x-1.5 text-slate-400 text-xs mb-1">
-            <Users className="h-3.5 w-3.5 text-blue-400" />
-            <span>Headcount</span>
+      {/* Digital Inset Hardware Gauge Meters */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+        <div className="skeuo-inset p-2.5">
+          <div className="flex items-center space-x-1 text-slate-500 text-[10px] font-mono mb-1">
+            <Users className="h-3 w-3 text-blue-400" />
+            <span>PAYROLL SCALE</span>
           </div>
-          <div className="text-lg font-bold text-white">
+          <div className="text-lg font-mono font-black text-white">
             {firmographics.headcountEstimate?.toLocaleString() || "120+"}
           </div>
-          <div className="text-[10px] text-slate-500">Verified employees</div>
+          <div className="text-[9px] font-mono text-slate-500">VERIFIED PROFILES</div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/70">
-          <div className="flex items-center space-x-1.5 text-slate-400 text-xs mb-1">
-            <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Growth Rate</span>
+        <div className="skeuo-inset p-2.5">
+          <div className="flex items-center space-x-1 text-slate-500 text-[10px] font-mono mb-1">
+            <TrendingUp className="h-3 w-3 text-emerald-400" />
+            <span>12-MO VELOCITY</span>
           </div>
-          <div className="text-lg font-bold text-emerald-400">
+          <div className="text-lg font-mono font-black text-emerald-400">
             {firmographics.headcountGrowthRate || "+14.2% YoY"}
           </div>
-          <div className="text-[10px] text-slate-500">12-mo expansion</div>
+          <div className="text-[9px] font-mono text-slate-500">TRAJECTORY</div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/70">
-          <div className="flex items-center space-x-1.5 text-slate-400 text-xs mb-1">
-            <Briefcase className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Executive Pool</span>
+        <div className="skeuo-inset p-2.5">
+          <div className="flex items-center space-x-1 text-slate-500 text-[10px] font-mono mb-1">
+            <Briefcase className="h-3 w-3 text-indigo-400" />
+            <span>C-SUITE POOL</span>
           </div>
-          <div className="text-lg font-bold text-white">
+          <div className="text-lg font-mono font-black text-white">
             {firmographics.executiveCount || 12}
           </div>
-          <div className="text-[10px] text-slate-500">C-Level & VP tier</div>
+          <div className="text-[9px] font-mono text-slate-500">EXECUTIVE TIER</div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/70">
-          <div className="flex items-center space-x-1.5 text-slate-400 text-xs mb-1">
-            <Users className="h-3.5 w-3.5 text-amber-400" />
-            <span>Recent Churn</span>
+        <div className="skeuo-inset p-2.5">
+          <div className="flex items-center space-x-1 text-slate-500 text-[10px] font-mono mb-1">
+            <Users className="h-3 w-3 text-amber-400" />
+            <span>90D TURNOVER</span>
           </div>
           <div
-            className={`text-lg font-bold ${
-              (firmographics.recentExecutiveTurnover || 0) > 2
-                ? "text-rose-400"
-                : "text-slate-200"
+            className={`text-lg font-mono font-black ${
+              (firmographics.recentExecutiveTurnover || 0) > 2 ? "text-rose-400" : "text-slate-200"
             }`}
           >
             {firmographics.recentExecutiveTurnover || 0}
           </div>
-          <div className="text-[10px] text-slate-500">Departures (90d)</div>
+          <div className="text-[9px] font-mono text-slate-500">EXITS (TRAILING)</div>
         </div>
       </div>
 
-      {/* Recharts Area Chart */}
-      <div className="h-56 w-full pt-2">
+      {/* Recessed Oscilloscope Screen */}
+      <div className="skeuo-inset p-3 pt-4 h-48 w-full relative">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
             <defs>
-              <linearGradient id="headcountGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+              <linearGradient id="oscilloscopeGlow" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#38bdf8" stopOpacity={0.0} />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="month"
-              stroke="#64748b"
-              fontSize={11}
+              stroke="#475569"
+              fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "#334155" }}
+              axisLine={{ stroke: "#1e293b" }}
             />
             <YAxis
-              stroke="#64748b"
-              fontSize={11}
+              stroke="#475569"
+              fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "#334155" }}
+              axisLine={{ stroke: "#1e293b" }}
               domain={["dataMin - 10", "dataMax + 10"]}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#0f172a",
+                backgroundColor: "#06090e",
                 borderColor: "#334155",
                 borderRadius: "0.5rem",
-                fontSize: "12px",
+                fontSize: "11px",
                 color: "#f8fafc",
+                fontFamily: "monospace",
               }}
-              formatter={(val: any) => [`${val} staff`, "Employees"]}
+              formatter={(val: any) => [`${val} verified`, "Staff"]}
             />
             <Area
               type="monotone"
               dataKey="employees"
-              stroke="#3b82f6"
+              stroke="#38bdf8"
               strokeWidth={2.5}
               fillOpacity={1}
-              fill="url(#headcountGradient)"
+              fill="url(#oscilloscopeGlow)"
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-slate-800/80 text-[11px] text-slate-400">
-        <span>Source: {firmographics.source}</span>
-        <span className="font-mono text-slate-500">CRUSTDATA-ENTITY-ID: {firmographics.crustdataId || "849201"}</span>
+      {/* Footer serial plate */}
+      <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 pt-3 border-t border-white/5">
+        <span>ENTITY-ID: {firmographics.crustdataId || "849201"}</span>
+        <span>{firmographics.hqLocation || "GLOBAL HQ"}</span>
       </div>
     </div>
   );

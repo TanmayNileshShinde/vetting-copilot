@@ -20,88 +20,80 @@ export const EvidenceFeed: React.FC<EvidenceFeedProps> = ({ evidence }) => {
     switch (severity) {
       case "critical":
         return {
-          bg: "bg-rose-500/20 text-rose-400 border-rose-500/30",
+          bg: "bg-rose-950/80 text-rose-400 border-rose-700/60",
           icon: ShieldAlert,
-          label: "Critical Flag",
+          label: "CRITICAL",
         };
       case "high":
         return {
-          bg: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+          bg: "bg-orange-950/80 text-orange-400 border-orange-700/60",
           icon: AlertTriangle,
-          label: "High Risk",
+          label: "HIGH RISK",
         };
       case "medium":
         return {
-          bg: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+          bg: "bg-amber-950/80 text-amber-400 border-amber-700/60",
           icon: AlertTriangle,
-          label: "Notice",
+          label: "NOTICE",
         };
       case "low":
       default:
         return {
-          bg: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+          bg: "bg-emerald-950/80 text-emerald-400 border-emerald-700/60",
           icon: CheckCircle2,
-          label: "Verified Safe",
+          label: "VERIFIED",
         };
     }
   };
 
   return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800/80 mb-4 gap-3">
-        <div>
-          <div className="flex items-center space-x-2">
-            <h3 className="text-sm font-bold text-white tracking-wide">
-              Live Regulatory & Web Evidence Anchors
-            </h3>
-            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              Olostep Telemetry
-            </span>
-          </div>
-          <p className="text-xs text-slate-400">
-            Real-time public records, disclosures, and docket citations
-          </p>
+    <div className="skeuo-panel p-6 flex flex-col justify-between">
+      {/* 4 Corner Screws */}
+      <div className="absolute top-2.5 left-2.5 skeuo-screw" />
+      <div className="absolute top-2.5 right-2.5 skeuo-screw" />
+      <div className="absolute bottom-2.5 left-2.5 skeuo-screw" />
+      <div className="absolute bottom-2.5 right-2.5 skeuo-screw" />
+
+      {/* Header Plate */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 mb-3 gap-2">
+        <div className="flex items-center space-x-2">
+          <div className="skeuo-led-green" />
+          <h3 className="text-xs font-mono font-black tracking-widest text-slate-200 uppercase">
+            REGULATORY & DISCLOSURE DOCKETS
+          </h3>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-950/80 border border-slate-800 rounded-lg text-xs">
+        {/* Tactile Filter Switches */}
+        <div className="flex flex-wrap items-center gap-1">
           <button
             onClick={() => setFilter("all")}
-            className={`px-2 py-1 rounded-md transition font-medium ${
-              filter === "all" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-white"
+            className={`skeuo-btn px-2 py-0.5 rounded text-[10px] font-mono ${
+              filter === "all" ? "text-white border-blue-500" : "text-slate-400"
             }`}
           >
-            All ({evidence.length})
+            ALL ({evidence.length})
           </button>
           <button
             onClick={() => setFilter("high")}
-            className={`px-2 py-1 rounded-md transition font-medium ${
-              filter === "high" ? "bg-rose-950/80 text-rose-400 border border-rose-800/40" : "text-slate-400 hover:text-rose-400"
+            className={`skeuo-btn px-2 py-0.5 rounded text-[10px] font-mono ${
+              filter === "high" ? "text-rose-400 border-rose-500" : "text-slate-400"
             }`}
           >
-            High Risk
+            FLAGS
           </button>
           <button
             onClick={() => setFilter("regulatory")}
-            className={`px-2 py-1 rounded-md transition font-medium ${
-              filter === "regulatory" ? "bg-cyan-950/80 text-cyan-400 border border-cyan-800/40" : "text-slate-400 hover:text-cyan-400"
+            className={`skeuo-btn px-2 py-0.5 rounded text-[10px] font-mono ${
+              filter === "regulatory" ? "text-cyan-400 border-cyan-500" : "text-slate-400"
             }`}
           >
-            Regulatory
-          </button>
-          <button
-            onClick={() => setFilter("leadership")}
-            className={`px-2 py-1 rounded-md transition font-medium ${
-              filter === "leadership" ? "bg-indigo-950/80 text-indigo-400 border border-indigo-800/40" : "text-slate-400 hover:text-indigo-400"
-            }`}
-          >
-            Leadership
+            DOCKETS
           </button>
         </div>
       </div>
 
-      {/* Evidence Cards */}
-      <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+      {/* Docket Feed Container */}
+      <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
         {filtered.map((item, index) => {
           const badge = getSeverityBadge(item.severity);
           const Icon = badge.icon;
@@ -109,38 +101,33 @@ export const EvidenceFeed: React.FC<EvidenceFeedProps> = ({ evidence }) => {
           return (
             <div
               key={index}
-              className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 transition"
+              className="skeuo-inset p-3"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badge.bg}`}
-                  >
-                    <Icon className="h-3 w-3 mr-0.5" />
-                    <span>{badge.label}</span>
-                  </span>
-                  <span className="text-xs font-semibold text-slate-300">
-                    {item.category}
-                  </span>
-                </div>
-                <span className="text-[10px] text-slate-500 font-mono">
-                  ANCHOR #{index + 1}
+              <div className="flex items-center justify-between mb-1.5">
+                <span
+                  className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded text-[9px] font-mono font-black border ${badge.bg}`}
+                >
+                  <Icon className="h-2.5 w-2.5 mr-0.5" />
+                  <span>{badge.label}</span>
+                </span>
+                <span className="text-[10px] font-mono text-slate-500">
+                  DOCKET #{index + 1} • {item.category.toUpperCase()}
                 </span>
               </div>
 
-              <h4 className="text-sm font-bold text-white mb-1.5">{item.title}</h4>
-              <p className="text-xs text-slate-300 mb-2 leading-relaxed">
+              <h4 className="text-xs font-black text-slate-100 font-mono mb-1">{item.title}</h4>
+              <p className="text-[11px] text-slate-300 font-sans leading-relaxed mb-2">
                 {item.finding}
               </p>
 
-              {/* Quoted Citation Stat */}
-              <div className="p-2.5 rounded-lg bg-slate-900 border-l-2 border-blue-500 text-xs font-mono text-slate-300 mb-2.5">
+              {/* Inset Quote Tape */}
+              <div className="p-2 rounded bg-black/90 border-l-2 border-blue-500 text-[10px] font-mono text-slate-300 mb-1.5">
                 "{item.quoteOrStat}"
               </div>
 
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-900">
+              <div className="flex items-center justify-between text-[9px] font-mono text-slate-500 pt-1 border-t border-white/5">
                 <span className="flex items-center">
-                  <Globe className="h-3 w-3 mr-1 text-cyan-400" />
+                  <Globe className="h-2.5 w-2.5 mr-1 text-cyan-400" />
                   {item.source}
                 </span>
                 {item.sourceUrl && (
@@ -148,10 +135,10 @@ export const EvidenceFeed: React.FC<EvidenceFeedProps> = ({ evidence }) => {
                     href={item.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-blue-400 hover:text-blue-300 transition"
+                    className="text-blue-400 hover:text-blue-300 flex items-center space-x-1"
                   >
-                    <span>View Filing</span>
-                    <ExternalLink className="h-3 w-3 ml-1" />
+                    <span>SOURCE</span>
+                    <ExternalLink className="h-2.5 w-2.5" />
                   </a>
                 )}
               </div>
