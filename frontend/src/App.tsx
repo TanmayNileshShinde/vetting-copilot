@@ -85,12 +85,12 @@ export const App: React.FC = () => {
 
             {/* Entity Header Banner */}
             <div className="skeuo-panel p-5 space-y-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="absolute top-2 left-2 skeuo-screw" />
-                <div className="absolute top-2 right-2 skeuo-screw" />
-                <div className="absolute bottom-2 left-2 skeuo-screw" />
-                <div className="absolute bottom-2 right-2 skeuo-screw" />
+              <div className="absolute top-2.5 left-2.5 skeuo-screw" />
+              <div className="absolute top-2.5 right-2.5 skeuo-screw" />
+              <div className="absolute bottom-2.5 left-2.5 skeuo-screw" />
+              <div className="absolute bottom-2.5 right-2.5 skeuo-screw" />
 
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center space-x-3.5">
                   <div className="h-12 w-12 rounded-xl bg-black border border-white/10 flex items-center justify-center text-blue-400 font-mono font-black text-xl shadow-inner">
                     {report.companyName.charAt(0)}
