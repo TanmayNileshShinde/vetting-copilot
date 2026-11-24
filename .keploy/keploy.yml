@@ -1,0 +1,21 @@
+# Keploy Quality Engineering Configuration
+# Homingo Hackathon (Edition 01) - Automated API Regression Testing
+version: 1.0.0
+
+app:
+  port: 5000
+  command: "npm start"
+  dir: "backend"
+  delay: 3
+
+test:
+  path: "backend/test"
+  globalNoise:
+    body:
+      timestamp: "IGNORE"
+      uptime: "IGNORE"
+      auditId: "IGNORE"
+  timeout: 30
+
+record:
+  path: "keploy/recordings"
