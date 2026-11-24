@@ -95,6 +95,7 @@ export const App: React.FC = () => {
                   <div className="h-12 w-12 rounded-xl bg-black border border-white/10 flex items-center justify-center text-blue-400 font-mono font-black text-xl shadow-inner overflow-hidden">
                     {report.firmographics.logoUrl ? (
                       <img
+                        key={report.auditId}
                         src={report.firmographics.logoUrl}
                         alt={report.companyName}
                         className="h-full w-full object-cover"
