@@ -127,7 +127,9 @@ export const App: React.FC = () => {
                       {report.auditId.endsWith("-DEMO") ? (
                         <span className="text-amber-400 font-bold flex items-center">
                           <Sparkles className="h-3 w-3 mr-1" />
-                          DEMO FALLBACK (START BACKEND PORT 5000 FOR LIVE APIS)
+                          {window.location.hostname === "localhost"
+                            ? "DEMO FALLBACK (BACKEND PORT 5000 OFFLINE)"
+                            : "DEMO FALLBACK (CHECK VERCEL ENV KEYS OR /API SERVICE)"}
                         </span>
                       ) : (
                         <span className="text-emerald-400 font-bold flex items-center">
