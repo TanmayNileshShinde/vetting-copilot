@@ -4,48 +4,233 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased selection:bg-blue-600 selection:text-white min-h-screen font-sans;
+    background-color: #080a0f;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.3) 0%, transparent 60%),
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    color: #e2e8f0;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
   }
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
+/* ============================================================
+   SKEUOMORPHIC TACTILE STYLING SYSTEM
+   ============================================================ */
+
+/* Industrial Alloy Plate / Chassis */
+.skeuo-panel {
+  background: linear-gradient(165deg, #161c28 0%, #0d111a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom-color: rgba(0, 0, 0, 0.8);
+  border-right-color: rgba(0, 0, 0, 0.6);
+  border-radius: 18px;
+  box-shadow: 
+    0 16px 36px -6px rgba(0, 0, 0, 0.85),
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+/* Recessed Inset Tray / Screen Well */
+.skeuo-inset {
+  background: #06090e;
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  border-top-color: rgba(0, 0, 0, 0.95);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 4px 8px rgba(0, 0, 0, 0.9),
+    inset 0 1px 3px rgba(0, 0, 0, 0.8),
+    0 1px 1px rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+/* Physical Push Button (Tactile Raised) */
+.skeuo-btn {
+  background: linear-gradient(180deg, #242c3d 0%, #151a24 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.12s ease-in-out;
+  cursor: pointer;
+  user-select: none;
+}
+.skeuo-btn:hover {
+  background: linear-gradient(180deg, #2d374d 0%, #19202c 100%);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35);
+}
+.skeuo-btn:active {
+  transform: translateY(2px);
+  background: linear-gradient(180deg, #131720 0%, #1e2533 100%);
+  box-shadow: 
+    inset 0 3px 5px rgba(0, 0, 0, 0.8),
+    inset 0 1px 2px rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+}
+
+/* Primary Action Button (Blue Glow Tactile) */
+.skeuo-btn-primary {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  border: 1px solid #60a5fa;
+  border-bottom: 3px solid #1e3a8a;
+  box-shadow: 
+    0 4px 14px rgba(37, 99, 235, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  transition: all 0.12s ease-in-out;
+}
+.skeuo-btn-primary:hover {
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+  box-shadow: 
+    0 6px 18px rgba(37, 99, 235, 0.55),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+.skeuo-btn-primary:active {
+  transform: translateY(2px);
+  background: linear-gradient(180deg, #1e40af 0%, #2563eb 100%);
+  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid #172554;
+}
+
+/* Physical Metal Corner Screw Rivet */
+.skeuo-screw {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+  border: 1px solid #64748b;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.8);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skeuo-screw::after {
+  content: '';
   width: 6px;
-  height: 6px;
+  height: 1.5px;
+  background: #0f172a;
+  box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.2);
+  border-radius: 1px;
+}
+
+/* Glass Dome LED Indicator */
+.skeuo-led-green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #86efac 0%, #22c55e 50%, #15803d 100%);
+  box-shadow: 
+    0 0 8px #22c55e,
+    0 0 16px rgba(34, 197, 94, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  border: 1px solid #14532d;
+}
+.skeuo-led-amber {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fde047 0%, #eab308 50%, #a16207 100%);
+  box-shadow: 
+    0 0 8px #eab308,
+    0 0 16px rgba(234, 179, 8, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  border: 1px solid #713f12;
+}
+.skeuo-led-red {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fca5a5 0%, #ef4444 50%, #b91c1c 100%);
+  box-shadow: 
+    0 0 8px #ef4444,
+    0 0 16px rgba(239, 68, 68, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  border: 1px solid #7f1d1d;
+}
+
+/* Mechanical Slide Potentiometer Track & Thumb */
+.skeuo-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  background: #04060a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.95);
+  outline: none;
+  cursor: pointer;
+}
+.skeuo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #94a3b8 0%, #475569 50%, #1e293b 100%);
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.85),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+  cursor: grab;
+}
+.skeuo-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+}
+.skeuo-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #94a3b8 0%, #475569 50%, #1e293b 100%);
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.85);
+  cursor: grab;
+}
+
+/* Custom Inset Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #080b11;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
   border-radius: 4px;
+  border: 1px solid #475569;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
 
-/* Institutional Print / PDF Styles */
+/* Print Styles */
 @media print {
   body {
-    background-color: #ffffff !important;
+    background: #ffffff !important;
     color: #0f172a !important;
   }
   header, form, button, input, footer, .no-print {
     display: none !important;
   }
-  .bg-slate-900, .bg-slate-950, .bg-slate-900\/70, .bg-slate-900\/80 {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
-    color: #0f172a !important;
+  .skeuo-panel, .skeuo-inset {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
-  }
-  .text-white, .text-slate-100, .text-slate-200, .text-slate-300 {
     color: #0f172a !important;
-  }
-  .text-slate-400, .text-slate-500 {
-    color: #475569 !important;
-  }
-  .border-slate-800, .border-slate-700, .border-slate-850 {
-    border-color: #cbd5e1 !important;
   }
 }

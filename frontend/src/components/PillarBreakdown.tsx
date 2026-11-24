@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, FileCheck2, TrendingUp, ShieldAlert, Check } from "lucide-react";
+import { Users, FileCheck2, TrendingUp, ShieldAlert, Cpu } from "lucide-react";
 
 interface PillarBreakdownProps {
   pillars: {
@@ -13,95 +13,127 @@ interface PillarBreakdownProps {
 export const PillarBreakdown: React.FC<PillarBreakdownProps> = ({ pillars }) => {
   const items = [
     {
-      title: "Leadership Stability",
-      subtitle: "C-suite churn & executive retention",
+      title: "LEADERSHIP INTEGRITY",
+      subtitle: "C-Suite Churn & Retention",
       score: pillars.leadershipScore,
       icon: Users,
-      source: "Crustdata Executive Tracker",
+      channel: "CH-01",
+      source: "CRUSTDATA",
     },
     {
-      title: "Regulatory Compliance",
-      subtitle: "Court dockets, SEC & fraud notices",
+      title: "REGULATORY COMPLIANCE",
+      subtitle: "Court Dockets & SEC Filings",
       score: pillars.regulatoryScore,
       icon: FileCheck2,
-      source: "Olostep Legal Crawler",
+      channel: "CH-02",
+      source: "OLOSTEP",
     },
     {
-      title: "Headcount Health",
-      subtitle: "Workforce growth trajectory & scale",
+      title: "HEADCOUNT TRAJECTORY",
+      subtitle: "Workforce Expansion Health",
       score: pillars.headcountScore,
       icon: TrendingUp,
-      source: "Crustdata Verified B2B",
+      channel: "CH-03",
+      source: "CRUSTDATA",
     },
     {
-      title: "Operational Footprint",
-      subtitle: "TLS verification, SLA & public Terms",
+      title: "OPERATIONAL INTEGRITY",
+      subtitle: "Public SLA & Discrepancies",
       score: pillars.operationalScore,
       icon: ShieldAlert,
-      source: "Olostep Web Depth Analyzer",
+      channel: "CH-04",
+      source: "CROSS-SIGNAL",
     },
   ];
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-emerald-400 bg-emerald-500";
-    if (score >= 60) return "text-amber-400 bg-amber-500";
-    return "text-rose-400 bg-rose-500";
-  };
-
   return (
-    <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-sm font-bold text-white tracking-wide">
-            Intelligence Pillar Diagnostics
+    <div className="skeuo-panel p-6 flex flex-col justify-between">
+      {/* 4 Corner Screws */}
+      <div className="absolute top-2.5 left-2.5 skeuo-screw" />
+      <div className="absolute top-2.5 right-2.5 skeuo-screw" />
+      <div className="absolute bottom-2.5 left-2.5 skeuo-screw" />
+      <div className="absolute bottom-2.5 right-2.5 skeuo-screw" />
+
+      {/* Rack Mount Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
+        <div className="flex items-center space-x-2">
+          <div className="skeuo-led-green" />
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-300 font-mono flex items-center space-x-2">
+            <span>QUAD-PILLAR TELEMETRY CONSOLE</span>
           </h3>
-          <p className="text-xs text-slate-400">
-            Multi-source cross-verification scores (0-100 Health)
-          </p>
+        </div>
+        <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500">
+          <Cpu className="h-3 w-3 text-slate-400" />
+          <span>REAL-TIME MULTI-SOURCE BUS</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* 4 Channel VU Meter Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         {items.map((item) => {
           const Icon = item.icon;
-          const colorClass = getScoreColor(item.score);
-          const textColor = colorClass.split(" ")[0];
-          const bgBar = colorClass.split(" ")[1];
+          const isHigh = item.score >= 80;
+          const isMid = item.score >= 50 && item.score < 80;
+
+          // Compute number of illuminated LED segments out of 10
+          const activeSegments = Math.round((item.score / 100) * 10);
 
           return (
             <div
-              key={item.title}
-              className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-col justify-between hover:border-slate-700 transition"
+              key={item.channel}
+              className="skeuo-inset p-3.5 flex flex-col justify-between"
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
-                  <div className="p-1.5 rounded-lg bg-slate-800 text-slate-300">
-                    <Icon className="h-4 w-4" />
+                  <div className="p-1 rounded bg-black/80 border border-white/10 text-slate-400">
+                    <Icon className="h-3.5 w-3.5 text-blue-400" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-200">{item.title}</h4>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-[10px] font-mono font-bold text-slate-500">{item.channel}</span>
+                      <span className="text-xs font-black text-slate-200 tracking-wide font-mono">{item.title}</span>
+                    </div>
                     <p className="text-[10px] text-slate-500">{item.subtitle}</p>
                   </div>
                 </div>
-                <span className={`text-sm font-extrabold ${textColor}`}>
-                  {item.score}%
-                </span>
+
+                <div className="text-right">
+                  <span
+                    className={`text-sm font-mono font-black ${
+                      isHigh ? "text-emerald-400" : isMid ? "text-amber-400" : "text-rose-400"
+                    }`}
+                  >
+                    {item.score}%
+                  </span>
+                </div>
               </div>
 
-              {/* Progress Bar */}
-              <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden mb-2">
-                <div
-                  className={`h-full ${bgBar} rounded-full transition-all duration-700`}
-                  style={{ width: `${item.score}%` }}
-                />
+              {/* Segmented Physical VU-Meter LED Bar */}
+              <div className="my-2 p-1.5 rounded-lg bg-black/90 border border-black shadow-inner">
+                <div className="grid grid-cols-10 gap-1 h-3">
+                  {Array.from({ length: 10 }).map((_, idx) => {
+                    const isLit = idx < activeSegments;
+                    let segmentColor = "bg-emerald-500 shadow-[0_0_6px_#10b981]";
+                    if (idx >= 7) segmentColor = "bg-rose-500 shadow-[0_0_6px_#ef4444]";
+                    else if (idx >= 5) segmentColor = "bg-amber-500 shadow-[0_0_6px_#f59e0b]";
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`rounded-sm transition-all duration-300 ${
+                          isLit
+                            ? segmentColor
+                            : "bg-slate-900 border border-slate-800/60"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="flex items-center justify-between text-[10px] text-slate-500">
-                <span>{item.source}</span>
-                <span className="flex items-center text-slate-400">
-                  <Check className="h-3 w-3 mr-0.5 text-blue-400" />
-                  Verified
-                </span>
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 pt-1">
+                <span>SRC: {item.source}</span>
+                <span className="text-slate-400">SIG • LOCKED</span>
               </div>
             </div>
           );
