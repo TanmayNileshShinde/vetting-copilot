@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "test": "tsc --noEmit"
+    "test": "tsc --noEmit && tsx test/audit.test.ts",
+    "test:keploy": "tsx test/audit.test.ts"
   },
   "keywords": [
     "ai",

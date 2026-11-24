@@ -7,11 +7,12 @@ interface EvidenceFeedProps {
 }
 
 export const EvidenceFeed: React.FC<EvidenceFeedProps> = ({ evidence }) => {
-  const [filter, setFilter] = useState<"all" | "high" | "low">("all");
+  const [filter, setFilter] = useState<"all" | "high" | "regulatory" | "leadership">("all");
 
   const filtered = evidence.filter((item) => {
     if (filter === "high") return item.severity === "high" || item.severity === "critical";
-    if (filter === "low") return item.severity === "low" || item.severity === "medium";
+    if (filter === "regulatory") return item.category === "Regulatory & Legal";
+    if (filter === "leadership") return item.category === "Leadership Stability";
     return true;
   });
 
@@ -63,10 +64,10 @@ export const EvidenceFeed: React.FC<EvidenceFeedProps> = ({ evidence }) => {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center space-x-1.5 p-1 bg-slate-950/80 border border-slate-800 rounded-lg text-xs">
+        <div className="flex flex-wrap items-center gap-1 p-1 bg-slate-950/80 border border-slate-800 rounded-lg text-xs">
           <button
             onClick={() => setFilter("all")}
-            className={`px-2.5 py-1 rounded-md transition font-medium ${
+            className={`px-2 py-1 rounded-md transition font-medium ${
               filter === "all" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-white"
             }`}
           >
@@ -74,19 +75,27 @@ export const EvidenceFeed: React.FC<EvidenceFeedProps> = ({ evidence }) => {
           </button>
           <button
             onClick={() => setFilter("high")}
-            className={`px-2.5 py-1 rounded-md transition font-medium ${
-              filter === "high" ? "bg-rose-950/80 text-rose-400" : "text-slate-400 hover:text-rose-400"
+            className={`px-2 py-1 rounded-md transition font-medium ${
+              filter === "high" ? "bg-rose-950/80 text-rose-400 border border-rose-800/40" : "text-slate-400 hover:text-rose-400"
             }`}
           >
-            Risk Flags
+            High Risk
           </button>
           <button
-            onClick={() => setFilter("low")}
-            className={`px-2.5 py-1 rounded-md transition font-medium ${
-              filter === "low" ? "bg-emerald-950/80 text-emerald-400" : "text-slate-400 hover:text-emerald-400"
+            onClick={() => setFilter("regulatory")}
+            className={`px-2 py-1 rounded-md transition font-medium ${
+              filter === "regulatory" ? "bg-cyan-950/80 text-cyan-400 border border-cyan-800/40" : "text-slate-400 hover:text-cyan-400"
             }`}
           >
-            Passed Checks
+            Regulatory
+          </button>
+          <button
+            onClick={() => setFilter("leadership")}
+            className={`px-2 py-1 rounded-md transition font-medium ${
+              filter === "leadership" ? "bg-indigo-950/80 text-indigo-400 border border-indigo-800/40" : "text-slate-400 hover:text-indigo-400"
+            }`}
+          >
+            Leadership
           </button>
         </div>
       </div>

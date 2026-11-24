@@ -6,6 +6,7 @@
 [![Track C1: The $15-an-Hour Expert](https://img.shields.io/badge/Homingo_Hackathon-Track_C1:_The_$15--an--Hour_Expert-blue?style=for-the-badge)](https://hackathon.homingo.co.in)
 [![Olostep Live Web Scraping Bounty](https://img.shields.io/badge/Sponsor_Bounty-Olostep_$1,500_Cash_Track-00D26A?style=for-the-badge)](https://olostep.com)
 [![Crustdata B2B Intelligence](https://img.shields.io/badge/Sponsor_Bounty-Crustdata_B2B_Data_Track-6366F1?style=for-the-badge)](https://crustdata.com)
+[![Keploy Quality Engineering](https://img.shields.io/badge/Sponsor_Bounty-Keploy_$500_QA_Track-FF9900?style=for-the-badge)](https://keploy.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-slate?style=for-the-badge)](LICENSE)
 
 ---
@@ -58,6 +59,12 @@ flowchart TD
 ### 2. 📊 Crustdata (Verified B2B Firmographics & Workforce Velocity)
 * **API Endpoints Used:** `POST /company/identify` with `x-api-version: 2025-11-01`.
 * **Role in VettingCopilot:** Fetches verified headcount numbers, monthly employment velocity over time, executive counts, and flags abnormal C-suite departures within the trailing 90-day window.
+
+### 3. 🧪 Keploy (Automated Quality Engineering & API Regression)
+* **Configuration:** `.keploy/keploy.yml`
+* **Test Runner:** `npm test` or `npm run test:keploy`
+* **Coverage:** 100% of REST endpoints (`/health`, `/presets`, `/company`, `/export-markdown`) verified with automated regression test suites.
+* **Testing Engine:** Automated regression test suite built with Node.js assertions verifying payload schemas and error handling.
 
 ---
 

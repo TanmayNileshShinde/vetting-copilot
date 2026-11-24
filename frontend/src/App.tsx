@@ -9,7 +9,7 @@ import { BenchmarkCalculator } from "./components/BenchmarkCalculator";
 import { DossierModal } from "./components/DossierModal";
 import type { DueDiligenceReport, PresetCompany } from "./types";
 import { fetchPresets, runCompanyAudit } from "./services/api";
-import { FileText, Shield, Sparkles } from "lucide-react";
+import { FileText, Shield, Sparkles, History } from "lucide-react";
 
 export const App: React.FC = () => {
   const [report, setReport] = useState<DueDiligenceReport | null>(null);
@@ -17,6 +17,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeQuery, setActiveQuery] = useState("retool.com");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recentAudits, setRecentAudits] = useState<string[]>(["retool.com", "stripe.com"]);
 
   // Initialize presets and load baseline audit on mount
   useEffect(() => {
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
 
   const handleSearch = async (query: string) => {
     setActiveQuery(query);
+    setRecentAudits((prev) => Array.from(new Set([query, ...prev])).slice(0, 5));
     setIsLoading(true);
     try {
       const data = await runCompanyAudit(query);
@@ -55,6 +57,30 @@ export const App: React.FC = () => {
 
         {report && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+            {/* Recent Session Inquiries Breadcrumb */}
+            {recentAudits.length > 1 && (
+              <div className="flex items-center space-x-2 text-xs text-slate-400 no-print">
+                <History className="h-3.5 w-3.5 text-slate-500" />
+                <span className="font-medium text-slate-500">Recent Inquiries:</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {recentAudits.map((domain) => (
+                    <button
+                      key={domain}
+                      onClick={() => handleSearch(domain)}
+                      disabled={isLoading}
+                      className={`px-2.5 py-0.5 rounded-md border text-[11px] font-mono transition ${
+                        activeQuery === domain
+                          ? "bg-blue-600/20 text-blue-300 border-blue-500/40"
+                          : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-white"
+                      }`}
+                    >
+                      {domain}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Entity Header Banner */}
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl backdrop-blur-sm">
               <div className="flex items-center space-x-3.5">
