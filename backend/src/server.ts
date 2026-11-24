@@ -1,4 +1,11 @@
-import "dotenv/config";
+if (!process.env.VERCEL) {
+  try {
+    // Load local .env only outside Vercel (Vercel injects env vars directly)
+    require("dotenv").config();
+  } catch {
+    // Ignore when dotenv is absent
+  }
+}
 import express from "express";
 import cors from "cors";
 import path from "path";
