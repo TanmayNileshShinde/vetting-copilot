@@ -11,8 +11,8 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ score, riskLevel, recommen
   // Map score (0 to 100) to needle angle (-110 deg to +110 deg)
   const angle = -110 + (score / 100) * 220;
 
-  const isElevated = score >= 50 && score < 70;
-  const isCritical = score >= 70;
+  const isCritical = score >= 70 || riskLevel.toLowerCase().includes("high") || riskLevel.toLowerCase().includes("critical");
+  const isElevated = !isCritical && (score >= 30 || riskLevel.toLowerCase().includes("moderate") || riskLevel.toLowerCase().includes("elevated"));
 
   return (
     <div className="skeuo-panel p-6 flex flex-col justify-between">
@@ -35,62 +35,83 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ score, riskLevel, recommen
         </div>
       </div>
 
-      {/* Physical Analog Dial Gauge */}
-      <div className="relative flex flex-col items-center justify-center my-2">
-        {/* Recessed Circular Dial Frame */}
-        <div className="w-56 h-36 relative overflow-hidden flex items-end justify-center">
-          <svg className="w-56 h-56 -top-20 absolute" viewBox="0 0 200 200">
+      {/* Full Circular Physical Analog Manometer Gauge */}
+      <div className="relative flex flex-col items-center justify-center my-1">
+        <div className="w-48 h-44 relative flex items-center justify-center">
+          <svg className="w-48 h-48" viewBox="0 0 200 185">
+            <defs>
+              <linearGradient id="bezelRing" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#475569" />
+                <stop offset="50%" stopColor="#1e293b" />
+                <stop offset="100%" stopColor="#0f172a" />
+              </linearGradient>
+              <linearGradient id="pivotGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#fbbf24" />
+                <stop offset="50%" stopColor="#d97706" />
+                <stop offset="100%" stopColor="#78350f" />
+              </linearGradient>
+              <radialGradient id="glassGlare" cx="35%" cy="25%" r="65%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.10)" />
+                <stop offset="60%" stopColor="rgba(255,255,255,0.02)" />
+                <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+              </radialGradient>
+            </defs>
+
             {/* Outer metallic bezel ring */}
             <circle
               cx="100"
-              cy="100"
-              r="90"
-              fill="none"
-              stroke="#1e293b"
-              strokeWidth="10"
-              strokeLinecap="round"
+              cy="98"
+              r="86"
+              fill="#06090e"
+              stroke="url(#bezelRing)"
+              strokeWidth="8"
             />
-            {/* Gauge Background Face */}
             <circle
               cx="100"
-              cy="100"
-              r="84"
-              fill="#06090e"
+              cy="98"
+              r="82"
+              fill="none"
+              stroke="rgba(0,0,0,0.85)"
+              strokeWidth="2"
             />
 
-            {/* Arc: Safe Zone (Green: 0 - 30) */}
+            {/* Arc: Safe Zone (Green: 0 - 30 -> -110 deg to -44 deg) */}
             <path
-              d="M 35 155 A 82 82 0 0 1 65 37"
+              d="M 28.6 124.0 A 76 76 0 0 1 47.2 43.3"
               fill="none"
               stroke="#10b981"
               strokeWidth="6"
-              strokeOpacity="0.8"
+              strokeOpacity="0.85"
+              strokeLinecap="round"
             />
-            {/* Arc: Caution Zone (Amber: 30 - 70) */}
+            {/* Arc: Caution Zone (Amber: 30 - 70 -> -44 deg to +44 deg) */}
             <path
-              d="M 65 37 A 82 82 0 0 1 135 37"
+              d="M 47.2 43.3 A 76 76 0 0 1 152.8 43.3"
               fill="none"
               stroke="#f59e0b"
               strokeWidth="6"
-              strokeOpacity="0.8"
+              strokeOpacity="0.85"
             />
-            {/* Arc: Danger Zone (Red: 70 - 100) */}
+            {/* Arc: Danger Zone (Red: 70 - 100 -> +44 deg to +110 deg) */}
             <path
-              d="M 135 37 A 82 82 0 0 1 165 155"
+              d="M 152.8 43.3 A 76 76 0 0 1 171.4 124.0"
               fill="none"
               stroke="#ef4444"
               strokeWidth="6"
-              strokeOpacity="0.8"
+              strokeOpacity="0.85"
+              strokeLinecap="round"
             />
 
             {/* Dial Tick marks */}
             {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((tick) => {
               const tickAngle = -110 + (tick / 100) * 220;
               const rad = (tickAngle * Math.PI) / 180;
-              const x1 = 100 + 72 * Math.sin(rad);
-              const y1 = 100 - 72 * Math.cos(rad);
-              const x2 = 100 + 80 * Math.sin(rad);
-              const y2 = 100 - 80 * Math.cos(rad);
+              const innerR = tick % 20 === 0 ? 64 : 68;
+              const outerR = 74;
+              const x1 = 100 + innerR * Math.sin(rad);
+              const y1 = 98 - innerR * Math.cos(rad);
+              const x2 = 100 + outerR * Math.sin(rad);
+              const y2 = 98 - outerR * Math.cos(rad);
               return (
                 <line
                   key={tick}
@@ -98,36 +119,42 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ score, riskLevel, recommen
                   y1={y1}
                   x2={x2}
                   y2={y2}
-                  stroke={tick >= 70 ? "#ef4444" : tick >= 40 ? "#f59e0b" : "#64748b"}
-                  strokeWidth={tick % 20 === 0 ? "2.5" : "1.2"}
+                  stroke={tick >= 70 ? "#ef4444" : tick >= 30 ? "#f59e0b" : "#10b981"}
+                  strokeWidth={tick % 20 === 0 ? "2.2" : "1.2"}
                 />
               );
             })}
+
+            {/* Dial Scale Labels */}
+            <text x="38" y="138" fill="#64748b" fontSize="9" fontFamily="monospace" fontWeight="bold" textAnchor="middle">0</text>
+            <text x="100" y="37" fill="#94a3b8" fontSize="9" fontFamily="monospace" fontWeight="bold" textAnchor="middle">50</text>
+            <text x="162" y="138" fill="#ef4444" fontSize="9" fontFamily="monospace" fontWeight="bold" textAnchor="middle">100</text>
+            <text x="100" y="148" fill="#475569" fontSize="7" fontFamily="monospace" fontWeight="bold" textAnchor="middle" letterSpacing="1">RISK PSI</text>
 
             {/* Physical Needle with Needle Shadow */}
             <g
               style={{
                 transform: `rotate(${angle}deg)`,
-                transformOrigin: "100px 100px",
+                transformOrigin: "100px 98px",
                 transition: "transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
               }}
             >
               {/* Needle Shadow */}
               <line
                 x1="102"
-                y1="102"
+                y1="100"
                 x2="102"
-                y2="28"
-                stroke="rgba(0,0,0,0.6)"
+                y2="32"
+                stroke="rgba(0,0,0,0.65)"
                 strokeWidth="3.5"
                 strokeLinecap="round"
               />
               {/* Physical Red Needle */}
               <line
                 x1="100"
-                y1="100"
+                y1="98"
                 x2="100"
-                y2="26"
+                y2="30"
                 stroke="#f43f5e"
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -135,9 +162,9 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ score, riskLevel, recommen
               {/* Counter-weight tail */}
               <line
                 x1="100"
-                y1="100"
+                y1="98"
                 x2="100"
-                y2="114"
+                y2="112"
                 stroke="#e11d48"
                 strokeWidth="3.5"
                 strokeLinecap="round"
@@ -147,26 +174,27 @@ export const RiskGauge: React.FC<RiskGaugeProps> = ({ score, riskLevel, recommen
             {/* Center Metallic Pivot Cap */}
             <circle
               cx="100"
-              cy="100"
-              r="10"
+              cy="98"
+              r="9.5"
               fill="url(#pivotGradient)"
               stroke="#0f172a"
               strokeWidth="2"
             />
             <circle
               cx="100"
-              cy="100"
-              r="4"
-              fill="#cbd5e1"
+              cy="98"
+              r="3.5"
+              fill="#fef3c7"
             />
 
-            <defs>
-              <linearGradient id="pivotGradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#f59e0b" />
-                <stop offset="50%" stopColor="#d97706" />
-                <stop offset="100%" stopColor="#78350f" />
-              </linearGradient>
-            </defs>
+            {/* Subtle Glass Lens Glare */}
+            <circle
+              cx="100"
+              cy="98"
+              r="82"
+              fill="url(#glassGlare)"
+              pointerEvents="none"
+            />
           </svg>
         </div>
 
