@@ -76,8 +76,13 @@ auditRouter.post("/company", async (req: Request, res: Response) => {
       });
     }
 
-    const cleanInput = query.trim();
-    const domain = cleanInput.includes(".") ? cleanInput : `${cleanInput.toLowerCase().replace(/\s+/g, "")}.com`;
+    const rawInput = query.trim();
+    const cleaned = rawInput
+      .replace(/^https?:\/\//i, "")
+      .replace(/^www\./i, "")
+      .replace(/\/.*$/, "")
+      .trim();
+    const domain = cleaned.includes(".") ? cleaned.toLowerCase() : `${cleaned.toLowerCase().replace(/\s+/g, "")}.com`;
     const targetUrl = url || `https://${domain}`;
 
     console.log(`[Audit Engine] Initiating due diligence for: ${domain}`);
@@ -86,11 +91,12 @@ auditRouter.post("/company", async (req: Request, res: Response) => {
     const [firmographics, scrapeData, riskNotices] = await Promise.all([
       crustdataService.getCompanyData(domain),
       olostepService.scrapeUrl(targetUrl),
-      olostepService.searchCompanyRisks(cleanInput),
+      olostepService.searchCompanyRisks(domain),
     ]);
 
+    const lowerQuery = rawInput.toLowerCase();
     // Handle high-profile risk anomalies for demo fidelity
-    if (domain.includes("ftx") || cleanInput.toLowerCase().includes("ftx")) {
+    if (domain.includes("ftx") || lowerQuery.includes("ftx")) {
       riskNotices.push({
         title: "Federal Criminal Indictment & Chapter 11 Injunction",
         snippet: "SEC & DOJ criminal prosecution filings alleging multi-billion dollar misappropriation.",
@@ -98,7 +104,7 @@ auditRouter.post("/company", async (req: Request, res: Response) => {
         riskLevel: "high",
       });
       firmographics.recentExecutiveTurnover = 8;
-    } else if (domain.includes("wework") || cleanInput.toLowerCase().includes("wework")) {
+    } else if (domain.includes("wework") || lowerQuery.includes("wework")) {
       riskNotices.push({
         title: "SEC Disclosures regarding Commercial Lease Liabilities",
         snippet: "Public filings note ongoing renegotiation of long-term commercial lease obligations.",

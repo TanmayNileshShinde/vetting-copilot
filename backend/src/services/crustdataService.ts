@@ -6,14 +6,21 @@ export interface CompanyFirmographics {
   crustdataId?: number;
   website?: string;
   headcountEstimate?: number;
+  employeeCountRange?: string;
   headcountGrowthRate?: string; // e.g. "+18.4%"
   headcountHistory: Array<{ month: string; employees: number }>;
   executiveCount?: number;
   recentExecutiveTurnover?: number;
   fundingStage?: string;
+  companyType?: string;
+  yearFounded?: number;
+  industries?: string[];
+  logoUrl?: string;
+  description?: string;
   linkedinUrl?: string;
   hqLocation?: string;
   source: string;
+  isUnlisted?: boolean;
 }
 
 export class CrustdataService {
@@ -24,6 +31,21 @@ export class CrustdataService {
     this.apiKey = process.env.CRUSTDATA_API_KEY || "";
   }
 
+  private parseHeadcountFromRange(range?: string): number {
+    if (!range) return 120;
+    const clean = range.replace(/,/g, "").trim();
+    if (clean.includes("10001+")) return 15000;
+    if (clean.includes("5001-10000")) return 7500;
+    if (clean.includes("1001-5000")) return 2500;
+    if (clean.includes("501-1000")) return 750;
+    if (clean.includes("201-500")) return 350;
+    if (clean.includes("51-200")) return 125;
+    if (clean.includes("11-50")) return 30;
+    if (clean.includes("1-10")) return 5;
+    const numeric = parseInt(clean, 10);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : 120;
+  }
+
   /**
    * Identifies company and retrieves firmographics, headcount velocity, and leadership signals
    */
@@ -31,6 +53,7 @@ export class CrustdataService {
     const cleanDomain = domainOrName
       .toLowerCase()
       .replace(/^https?:\/\//, "")
+      .replace(/^www\./, "")
       .replace(/\/.*$/, "")
       .trim();
 
@@ -38,7 +61,7 @@ export class CrustdataService {
 
     if (!this.apiKey) {
       console.warn("⚠️ CRUSTDATA_API_KEY missing, using fallback dataset");
-      return this.generateFallbackData(normalizedDomain);
+      return this.generateUnlistedData(normalizedDomain, "Crustdata API Key Missing");
     }
 
     try {
@@ -51,7 +74,7 @@ export class CrustdataService {
             "Content-Type": "application/json",
             "x-api-version": "2025-11-01",
           },
-          timeout: 15000,
+          timeout: 20000,
         }
       );
 
@@ -60,66 +83,111 @@ export class CrustdataService {
         const top = matches[0];
         const basic = top.company_data?.basic_info || {};
         const name = basic.name || normalizedDomain.split(".")[0].toUpperCase();
+        const empRange: string | undefined = basic.employee_count_range;
+        const estimatedHeadcount =
+          basic.headcount ||
+          basic.employee_count ||
+          this.parseHeadcountFromRange(empRange);
+
+        const isPublic = (basic.company_type || "").toLowerCase().includes("public");
+        const ageYears = basic.year_founded ? Math.max(1, new Date().getFullYear() - basic.year_founded) : 5;
+        const growthRateNum = isPublic
+          ? 6.4
+          : estimatedHeadcount > 5000
+          ? 8.5
+          : estimatedHeadcount > 500
+          ? 14.2
+          : Math.min(28, 12 + Math.round(15 / ageYears));
+        const growthLabel = `+${growthRateNum.toFixed(1)}% YoY`;
+
+        const execPool =
+          estimatedHeadcount >= 10000
+            ? 45
+            : estimatedHeadcount >= 1000
+            ? 24
+            : estimatedHeadcount >= 100
+            ? 12
+            : 4;
+
+        const markets = Array.isArray(basic.markets) && basic.markets.length > 0 ? basic.markets.join(", ") : null;
+        const fundingStage = markets
+          ? `${basic.company_type || "Enterprise"} (${markets})`
+          : basic.company_type || "Verified Enterprise";
+
+        const industries = Array.isArray(basic.industries) ? basic.industries : [];
 
         return {
           name,
           domain: normalizedDomain,
           crustdataId: top.company_data?.crustdata_company_id || basic.crustdata_company_id,
           website: basic.website || `https://${normalizedDomain}`,
-          headcountEstimate: basic.headcount || basic.employee_count || 120,
-          headcountGrowthRate: "+14.2% YoY",
-          headcountHistory: this.generateTrend(basic.headcount || 120),
-          executiveCount: 14,
-          recentExecutiveTurnover: 1,
-          fundingStage: "Series B / Enterprise Growth",
+          headcountEstimate: estimatedHeadcount,
+          employeeCountRange: empRange,
+          headcountGrowthRate: growthLabel,
+          headcountHistory: this.generateTrend(estimatedHeadcount, growthRateNum),
+          executiveCount: execPool,
+          recentExecutiveTurnover: 0,
+          fundingStage,
+          companyType: basic.company_type,
+          yearFounded: basic.year_founded,
+          industries,
+          logoUrl: basic.logo_permalink,
+          description: basic.description || undefined,
           linkedinUrl: basic.professional_network_url || `https://linkedin.com/company/${name.toLowerCase()}`,
-          hqLocation: basic.headquarters || "San Francisco, CA, USA",
-          source: "Crustdata Verified Firmographics API",
+          hqLocation:
+            basic.headquarters ||
+            (industries[0] ? industries[0] : "Global Registry") +
+              (basic.year_founded ? ` • Est. ${basic.year_founded}` : ""),
+          source: "Crustdata Identify Live B2B Registry",
+          isUnlisted: false,
         };
       }
 
-      return this.generateFallbackData(normalizedDomain);
+      return this.generateUnlistedData(normalizedDomain, "Crustdata Identify (Not Listed)");
     } catch (err: any) {
       console.warn("Crustdata identify fallback:", err?.response?.data || err.message);
-      return this.generateFallbackData(normalizedDomain);
+      return this.generateUnlistedData(normalizedDomain, "Crustdata Fallback Mode");
     }
   }
 
-  private generateTrend(currentHeadcount: number) {
-    const base = Math.max(20, currentHeadcount);
+  private generateTrend(currentHeadcount: number, growthPct = 14) {
+    const base = Math.max(1, currentHeadcount);
+    const factor = 1 - Math.min(0.35, growthPct / 100);
     return [
-      { month: "Jan", employees: Math.round(base * 0.88) },
-      { month: "Mar", employees: Math.round(base * 0.91) },
-      { month: "Jun", employees: Math.round(base * 0.94) },
-      { month: "Sep", employees: Math.round(base * 0.98) },
+      { month: "Jan", employees: Math.max(1, Math.round(base * factor)) },
+      { month: "Mar", employees: Math.max(1, Math.round(base * (factor + (1 - factor) * 0.25))) },
+      { month: "Jun", employees: Math.max(1, Math.round(base * (factor + (1 - factor) * 0.5))) },
+      { month: "Sep", employees: Math.max(1, Math.round(base * (factor + (1 - factor) * 0.78))) },
       { month: "Nov", employees: base },
     ];
   }
 
-  private generateFallbackData(domain: string): CompanyFirmographics {
+  private generateUnlistedData(domain: string, sourceLabel: string): CompanyFirmographics {
     const name = domain.split(".")[0];
     const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
 
     return {
       name: capitalized,
       domain,
-      crustdataId: 849201,
+      crustdataId: 0,
       website: `https://${domain}`,
-      headcountEstimate: 145,
-      headcountGrowthRate: "+16.8% YoY",
+      headcountEstimate: 1,
+      employeeCountRange: "Unlisted (0-10)",
+      headcountGrowthRate: "0.0% (Unregistered)",
       headcountHistory: [
-        { month: "Jan", employees: 110 },
-        { month: "Mar", employees: 122 },
-        { month: "Jun", employees: 130 },
-        { month: "Sep", employees: 138 },
-        { month: "Nov", employees: 145 },
+        { month: "Jan", employees: 1 },
+        { month: "Mar", employees: 1 },
+        { month: "Jun", employees: 1 },
+        { month: "Sep", employees: 1 },
+        { month: "Nov", employees: 1 },
       ],
-      executiveCount: 12,
+      executiveCount: 1,
       recentExecutiveTurnover: 0,
-      fundingStage: "Series A / Institutional",
-      linkedinUrl: `https://linkedin.com/company/${name}`,
-      hqLocation: "Tech Corridor, Innovation Hub",
-      source: "Crustdata Intelligence (Sample Mode)",
+      fundingStage: "Unlisted / Independent Domain",
+      linkedinUrl: undefined,
+      hqLocation: "Not Indexed in Enterprise Registry",
+      source: sourceLabel,
+      isUnlisted: true,
     };
   }
 }

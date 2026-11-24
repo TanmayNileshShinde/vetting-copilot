@@ -1,4 +1,4 @@
-import { OlostepScrapeResult } from "./olostepService";
+import { OlostepScrapeResult, OlostepRiskNotice } from "./olostepService";
 import { CompanyFirmographics } from "./crustdataService";
 import { llmEngine, LLMAnalysisResult } from "./llmEngine";
 
@@ -42,12 +42,28 @@ export class AnalysisEngine {
   /**
    * Evaluates firmographic data and web scrapes to compute an audit-grade risk dossier
    */
-  async evaluate(firmographics: CompanyFirmographics, scrape: OlostepScrapeResult, risks: any[]): Promise<DueDiligenceReport> {
+  async evaluate(
+    firmographics: CompanyFirmographics,
+    scrape: OlostepScrapeResult,
+    risks: OlostepRiskNotice[]
+  ): Promise<DueDiligenceReport> {
     const evidenceItems: RiskEvidence[] = [];
 
-    // Pillar 1: Headcount & Turnover Analysis (Crustdata)
+    // Pillar 1: Headcount, Corporate Registration & Leadership Turnover (Crustdata)
     let headcountPenalty = 0;
-    if (firmographics.recentExecutiveTurnover && firmographics.recentExecutiveTurnover > 2) {
+    let unlistedPenalty = 0;
+
+    if (firmographics.isUnlisted) {
+      unlistedPenalty = 24;
+      evidenceItems.push({
+        category: "Financial Velocity",
+        severity: "medium",
+        title: "Unlisted / Unverified Corporate Entity",
+        finding: `Domain "${firmographics.domain}" returned 0 registered enterprise matches in Crustdata B2B directory (likely personal portfolio, micro-business, or shell domain).`,
+        quoteOrStat: `Registry status: ${firmographics.fundingStage || "Unlisted Domain"}`,
+        source: firmographics.source,
+      });
+    } else if (firmographics.recentExecutiveTurnover && firmographics.recentExecutiveTurnover > 2) {
       headcountPenalty += 25;
       evidenceItems.push({
         category: "Leadership Stability",
@@ -59,61 +75,74 @@ export class AnalysisEngine {
         sourceUrl: firmographics.linkedinUrl,
       });
     } else {
+      const descSnippet = firmographics.description
+        ? firmographics.description.replace(/\s+/g, " ").trim().slice(0, 140) + "..."
+        : `${firmographics.companyType || "Enterprise"} • ${firmographics.employeeCountRange || firmographics.headcountEstimate} staff`;
       evidenceItems.push({
         category: "Leadership Stability",
         severity: "low",
-        title: "Stable Executive Retention",
-        finding: "Key leadership team has remained intact over the past 12 months with stable reporting structures.",
-        quoteOrStat: `Active C-Level / VP headcount: ${firmographics.executiveCount || 12} leaders`,
-        source: "Crustdata Verified Directory",
+        title: `Verified Corporate Profile (${firmographics.employeeCountRange || firmographics.headcountEstimate})`,
+        finding: `${firmographics.name} confirmed in Crustdata B2B registry (${firmographics.fundingStage || "Verified"}).`,
+        quoteOrStat: descSnippet,
+        source: firmographics.source,
+        sourceUrl: firmographics.linkedinUrl,
       });
     }
 
     // Pillar 2: Regulatory & Legal Checks (Olostep)
     let regulatoryPenalty = 0;
-    const hasHighRiskNews = risks.some((r) => r.riskLevel === "high");
-    if (hasHighRiskNews) {
-      regulatoryPenalty += 30;
-      evidenceItems.push({
-        category: "Regulatory & Legal",
-        severity: "high",
-        title: "Active Legal or Regulatory Scrutiny",
-        finding: "Scraped legal databases flagged active disputes or public enforcement inquiry.",
-        quoteOrStat: risks.find((r) => r.riskLevel === "high")?.snippet || "Dispute filing detected.",
-        source: "Olostep Live Legal Registry Crawler",
-        sourceUrl: scrape.url,
-      });
-    } else {
+    const highRisks = risks.filter((r) => r.riskLevel === "high");
+    const medRisks = risks.filter((r) => r.riskLevel === "medium");
+
+    if (highRisks.length > 0) {
+      regulatoryPenalty = Math.min(45, 16 + (highRisks.length - 1) * 10 + medRisks.length * 4);
+    } else if (medRisks.length > 0) {
+      regulatoryPenalty = Math.min(24, medRisks.length * 8);
+    }
+
+    if (highRisks.length === 0 && medRisks.length === 0) {
       evidenceItems.push({
         category: "Regulatory & Legal",
         severity: "low",
-        title: "Clean Regulatory Docket",
-        finding: "No federal sanctions, active court injunctions, or regulatory cease-and-desist notices found in public crawlers.",
-        quoteOrStat: "0 enforcement actions on SEC/FTC/MCA registries",
-        source: "Olostep Crawl Index",
+        title: risks[0]?.title || "Clean Regulatory Docket",
+        finding:
+          risks[0]?.snippet ||
+          "No federal sanctions, active court injunctions, or regulatory enforcement notices found in Olostep crawlers.",
+        quoteOrStat: "0 enforcement actions surfaced in live web search",
+        source: "Olostep Live Search Index",
       });
     }
 
-    // Pillar 3: Operational Web Integrity (Olostep)
+    // Pillar 3: Operational Web Integrity (Olostep Scrape)
     let operationalPenalty = 0;
-    if (!scrape.text || scrape.text.length < 200) {
-      operationalPenalty += 20;
+    const scrapedLength = scrape.text?.length || 0;
+    const lowerText = (scrape.text || "").toLowerCase();
+    const hasLegalPolicySignals = /(privacy|terms|security|compliance|policy|copyright|all rights reserved)/i.test(lowerText);
+
+    if (scrapedLength < 200) {
+      operationalPenalty += 18;
       evidenceItems.push({
         category: "Operational Integrity",
         severity: "medium",
-        title: "Minimal Public Web Presence",
-        finding: "Domain has limited public disclosures or opaque business service pages.",
-        quoteOrStat: `Total crawled text body length: ${scrape.text?.length || 0} chars`,
-        source: "Olostep Web Depth Analyzer",
+        title: "Minimal Public Web Disclosures",
+        finding: "Target URL yielded minimal indexable disclosure text or restricted automated crawling.",
+        quoteOrStat: `Crawled body length: ${scrapedLength} chars at ${scrape.url}`,
+        source: scrape.source,
+        sourceUrl: scrape.url,
       });
     } else {
+      if (!hasLegalPolicySignals) {
+        operationalPenalty += 8;
+      }
+      const preview = scrape.text!.replace(/\s+/g, " ").trim().slice(0, 160);
       evidenceItems.push({
         category: "Operational Integrity",
-        severity: "low",
-        title: "Verified Enterprise Footprint",
-        finding: "Active HTTPS domain with publicly available Terms of Service, Privacy Shield, and verified SLA documentation.",
-        quoteOrStat: `Validated domain: ${scrape.url}`,
-        source: "Olostep Live Web Inspection",
+        severity: hasLegalPolicySignals ? "low" : "medium",
+        title: hasLegalPolicySignals ? "Verified Live Enterprise Web Footprint" : "Live Web Footprint (No SLA/Privacy Links Detected)",
+        finding: `Olostep scraped ${scrapedLength.toLocaleString()} live characters from ${scrape.url}${scrape.title ? ` (${scrape.title})` : ""}.`,
+        quoteOrStat: `${preview}${scrape.text!.length > 160 ? "..." : ""}`,
+        source: scrape.source,
+        sourceUrl: scrape.url,
       });
     }
 
@@ -125,21 +154,24 @@ export class AnalysisEngine {
       risks
     );
 
-    // Merge AI-grounded evidence citations
+    // Merge AI-grounded evidence citations (real Olostep dockets & discrepancy hits)
     if (llmResult.aiGroundedEvidence.length > 0) {
       evidenceItems.push(...llmResult.aiGroundedEvidence);
     }
 
     let discrepancyPenalty = 0;
     if (llmResult.discrepanciesDetected.length > 0) {
-      discrepancyPenalty = 20;
+      discrepancyPenalty = 18;
     }
 
     // Composite Calculation (0 is pristine, 100 is critical danger)
-    const baseScore = 15;
+    const baseScore = 12;
     const compositeRiskScore = Math.min(
       95,
-      Math.max(8, baseScore + headcountPenalty + regulatoryPenalty + operationalPenalty + discrepancyPenalty)
+      Math.max(
+        10,
+        baseScore + headcountPenalty + unlistedPenalty + regulatoryPenalty + operationalPenalty + discrepancyPenalty
+      )
     );
 
     let riskLevel: DueDiligenceReport["riskLevel"] = "Low Risk";
@@ -156,10 +188,7 @@ export class AnalysisEngine {
       recommendation = "Proceed with Additional Collateral";
     }
 
-    const executiveSummary =
-      llmResult.executiveNarrative ||
-      `Comprehensive multi-source audit conducted on ${firmographics.name} (${firmographics.domain}). Based on real-time B2B firmographics from Crustdata and live web crawler telemetry from Olostep, the entity receives a Composite Risk Score of ${compositeRiskScore}/100 (${riskLevel}). Headcount trajectory shows steady expansion (${firmographics.headcountGrowthRate}) across ${firmographics.headcountEstimate} employees. Public disclosures confirm verified operational standing with ${evidenceItems.length} evidence anchors analyzed.`;
-
+    const executiveSummary = llmResult.executiveNarrative;
     const auditId = `AUD-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 900 + 100)}`;
 
     return {
@@ -171,9 +200,11 @@ export class AnalysisEngine {
       riskLevel,
       recommendation,
       pillars: {
-        leadershipScore: Math.max(10, 100 - headcountPenalty * 2),
-        regulatoryScore: Math.max(15, 100 - regulatoryPenalty * 2),
-        headcountScore: 92,
+        leadershipScore: firmographics.isUnlisted
+          ? 45
+          : Math.max(10, 100 - headcountPenalty * 2),
+        regulatoryScore: Math.max(15, Math.round(100 - regulatoryPenalty * 1.9)),
+        headcountScore: firmographics.isUnlisted ? 30 : Math.min(98, Math.max(55, 86 + (firmographics.headcountEstimate && firmographics.headcountEstimate >= 1000 ? 8 : 2))),
         operationalScore: Math.max(20, 100 - operationalPenalty * 2 - discrepancyPenalty),
       },
       executiveSummary,
