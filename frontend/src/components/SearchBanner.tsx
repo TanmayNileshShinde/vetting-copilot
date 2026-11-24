@@ -51,7 +51,7 @@ export const SearchBanner: React.FC<SearchBannerProps> = ({
       <div className="max-w-4xl mx-auto text-center relative z-10">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-4">
           <Sparkles className="h-3.5 w-3.5" />
-          <span>Automating the $150/hr Due Diligence Bottleneck</span>
+          <span>The $15-an-Hour Expert — Replacing $150/hr Due Diligence Consulting</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-3">
