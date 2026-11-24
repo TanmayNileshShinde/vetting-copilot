@@ -27,9 +27,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Mount audit routes
+// Mount audit routes (multi-path resilience for Vercel Services rewrites)
 app.use("/api/audit", auditRouter);
-app.use("/api", auditRouter); // Convenience fallback for /api/health
+app.use("/audit", auditRouter);
+app.use("/api", auditRouter);
+app.use("/", auditRouter);
 
 // Root endpoint with API capabilities
 app.get("/", (req, res) => {
