@@ -47,8 +47,8 @@ app.get("/", (req, res) => {
   });
 });
 
-// Start Server
-if (process.env.NODE_ENV !== "test") {
+// Start local HTTP server only when executed directly (not imported by tests or Vercel serverless)
+if (process.env.NODE_ENV !== "test" && !process.env.VERCEL && require.main === module) {
   app.listen(PORT, () => {
     console.log(`====================================================`);
     console.log(`🚀 VettingCopilot Backend is running on port ${PORT}`);
