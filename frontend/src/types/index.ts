@@ -33,6 +33,20 @@ export interface OlostepScrapeResult {
   source: string;
 }
 
+export interface LLMAnalysisResult {
+  executiveNarrative: string;
+  discrepanciesDetected: Array<{
+    field: string;
+    claimedOnWeb: string;
+    verifiedByCrustdata: string;
+    riskSeverity: "low" | "medium" | "high" | "critical";
+    implication: string;
+  }>;
+  aiGroundedEvidence: RiskEvidence[];
+  confidenceScore: number;
+  hallucinationGuardrailPassed: boolean;
+}
+
 export interface DueDiligenceReport {
   companyName: string;
   targetDomain: string;
@@ -51,6 +65,7 @@ export interface DueDiligenceReport {
   firmographics: CompanyFirmographics;
   scrapeData: OlostepScrapeResult;
   evidenceItems: RiskEvidence[];
+  llmAnalysis?: LLMAnalysisResult;
   benchmarkComparison: {
     manualHoursSaved: number;
     costSavedUsd: number;
@@ -65,4 +80,20 @@ export interface PresetCompany {
   category: string;
   expectedRisk: string;
   description: string;
+}
+
+export interface ComparisonResult {
+  vendorA: DueDiligenceReport;
+  vendorB: DueDiligenceReport;
+  verdict: {
+    saferVendor: string;
+    saferDomain: string;
+    riskDelta: number;
+    recommendation: string;
+    headToHead: {
+      leadershipWinner: string;
+      regulatoryWinner: string;
+      headcountWinner: string;
+    };
+  };
 }

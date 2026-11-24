@@ -1,5 +1,6 @@
 import { OlostepScrapeResult } from "./olostepService";
 import { CompanyFirmographics } from "./crustdataService";
+import { llmEngine, LLMAnalysisResult } from "./llmEngine";
 
 export interface RiskEvidence {
   category: "Leadership Stability" | "Regulatory & Legal" | "Financial Velocity" | "Operational Integrity";
@@ -29,6 +30,7 @@ export interface DueDiligenceReport {
   firmographics: CompanyFirmographics;
   scrapeData: OlostepScrapeResult;
   evidenceItems: RiskEvidence[];
+  llmAnalysis?: LLMAnalysisResult;
   benchmarkComparison: {
     manualHoursSaved: number;
     costSavedUsd: number;
@@ -115,9 +117,30 @@ export class AnalysisEngine {
       });
     }
 
+    // Cross-signal LLM reasoning & hallucination guardrails
+    const llmResult = await llmEngine.synthesizeIntelligence(
+      firmographics.name,
+      firmographics,
+      scrape,
+      risks
+    );
+
+    // Merge AI-grounded evidence citations
+    if (llmResult.aiGroundedEvidence.length > 0) {
+      evidenceItems.push(...llmResult.aiGroundedEvidence);
+    }
+
+    let discrepancyPenalty = 0;
+    if (llmResult.discrepanciesDetected.length > 0) {
+      discrepancyPenalty = 20;
+    }
+
     // Composite Calculation (0 is pristine, 100 is critical danger)
     const baseScore = 15;
-    const compositeRiskScore = Math.min(95, Math.max(8, baseScore + headcountPenalty + regulatoryPenalty + operationalPenalty));
+    const compositeRiskScore = Math.min(
+      95,
+      Math.max(8, baseScore + headcountPenalty + regulatoryPenalty + operationalPenalty + discrepancyPenalty)
+    );
 
     let riskLevel: DueDiligenceReport["riskLevel"] = "Low Risk";
     let recommendation: DueDiligenceReport["recommendation"] = "Approved for Vendor Onboarding";
@@ -133,7 +156,9 @@ export class AnalysisEngine {
       recommendation = "Proceed with Additional Collateral";
     }
 
-    const executiveSummary = `Comprehensive multi-source audit conducted on ${firmographics.name} (${firmographics.domain}). Based on real-time B2B firmographics from Crustdata and live web crawler telemetry from Olostep, the entity receives a Composite Risk Score of ${compositeRiskScore}/100 (${riskLevel}). Headcount trajectory shows steady expansion (${firmographics.headcountGrowthRate}) across ${firmographics.headcountEstimate} employees. Public disclosures confirm verified operational standing with ${evidenceItems.length} evidence anchors analyzed.`;
+    const executiveSummary =
+      llmResult.executiveNarrative ||
+      `Comprehensive multi-source audit conducted on ${firmographics.name} (${firmographics.domain}). Based on real-time B2B firmographics from Crustdata and live web crawler telemetry from Olostep, the entity receives a Composite Risk Score of ${compositeRiskScore}/100 (${riskLevel}). Headcount trajectory shows steady expansion (${firmographics.headcountGrowthRate}) across ${firmographics.headcountEstimate} employees. Public disclosures confirm verified operational standing with ${evidenceItems.length} evidence anchors analyzed.`;
 
     const auditId = `AUD-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 900 + 100)}`;
 
@@ -149,12 +174,13 @@ export class AnalysisEngine {
         leadershipScore: Math.max(10, 100 - headcountPenalty * 2),
         regulatoryScore: Math.max(15, 100 - regulatoryPenalty * 2),
         headcountScore: 92,
-        operationalScore: Math.max(20, 100 - operationalPenalty * 2),
+        operationalScore: Math.max(20, 100 - operationalPenalty * 2 - discrepancyPenalty),
       },
       executiveSummary,
       firmographics,
       scrapeData: scrape,
       evidenceItems,
+      llmAnalysis: llmResult,
       benchmarkComparison: {
         manualHoursSaved: 16.5,
         costSavedUsd: 2850,

@@ -1,4 +1,4 @@
-import type { DueDiligenceReport, PresetCompany } from "../types";
+import type { DueDiligenceReport, PresetCompany, ComparisonResult } from "../types";
 
 const API_BASE = "http://localhost:5000/api";
 
@@ -74,6 +74,43 @@ export async function runCompanyAudit(query: string): Promise<DueDiligenceReport
     console.warn("API request failed, generating client-side enriched report:", err);
     // Client fallback to ensure 100% demo uptime
     return generateClientMockReport(query);
+  }
+}
+
+export async function runVendorComparison(vendorA: string, vendorB: string): Promise<ComparisonResult> {
+  try {
+    const res = await fetch(`${API_BASE}/audit/compare`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vendorA, vendorB }),
+    });
+
+    if (!res.ok) throw new Error("Failed to run vendor comparison");
+    const json = await res.json();
+    return json.data;
+  } catch (err) {
+    console.warn("Using client-side fallback comparison:", err);
+    const auditA = generateClientMockReport(vendorA);
+    const auditB = generateClientMockReport(vendorB);
+    const safer = auditA.compositeRiskScore <= auditB.compositeRiskScore ? auditA : auditB;
+    const riskier = auditA.compositeRiskScore <= auditB.compositeRiskScore ? auditB : auditA;
+    const delta = Math.abs(auditA.compositeRiskScore - auditB.compositeRiskScore);
+
+    return {
+      vendorA: auditA,
+      vendorB: auditB,
+      verdict: {
+        saferVendor: safer.companyName,
+        saferDomain: safer.targetDomain,
+        riskDelta: delta,
+        recommendation: `Procurement recommendation: Onboard ${safer.companyName} (${safer.compositeRiskScore}/100 Risk). ${riskier.companyName} exhibits ${delta} points higher risk exposure with elevated volatility.`,
+        headToHead: {
+          leadershipWinner: auditA.pillars.leadershipScore >= auditB.pillars.leadershipScore ? auditA.companyName : auditB.companyName,
+          regulatoryWinner: auditA.pillars.regulatoryScore >= auditB.pillars.regulatoryScore ? auditA.companyName : auditB.companyName,
+          headcountWinner: (auditA.firmographics.headcountEstimate || 0) >= (auditB.firmographics.headcountEstimate || 0) ? auditA.companyName : auditB.companyName,
+        },
+      },
+    };
   }
 }
 

@@ -7,9 +7,10 @@ import { HeadcountChart } from "./components/HeadcountChart";
 import { EvidenceFeed } from "./components/EvidenceFeed";
 import { BenchmarkCalculator } from "./components/BenchmarkCalculator";
 import { DossierModal } from "./components/DossierModal";
+import { VendorShowdownModal } from "./components/VendorShowdownModal";
 import type { DueDiligenceReport, PresetCompany } from "./types";
 import { fetchPresets, runCompanyAudit } from "./services/api";
-import { FileText, Shield, Sparkles, History } from "lucide-react";
+import { FileText, Shield, Sparkles, History, Swords } from "lucide-react";
 
 export const App: React.FC = () => {
   const [report, setReport] = useState<DueDiligenceReport | null>(null);
@@ -17,6 +18,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeQuery, setActiveQuery] = useState("retool.com");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isShowdownOpen, setIsShowdownOpen] = useState(false);
   const [recentAudits, setRecentAudits] = useState<string[]>(["retool.com", "stripe.com"]);
 
   // Initialize presets and load baseline audit on mount
@@ -112,6 +114,14 @@ export const App: React.FC = () => {
               {/* Dossier Action Buttons */}
               <div className="flex items-center space-x-3">
                 <button
+                  onClick={() => setIsShowdownOpen(true)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 font-semibold text-xs transition border border-indigo-500/30 flex items-center space-x-2 shadow-sm"
+                >
+                  <Swords className="h-4 w-4 text-indigo-400" />
+                  <span>Compare Vendors</span>
+                </button>
+
+                <button
                   onClick={() => setIsModalOpen(true)}
                   className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-blue-600/30 flex items-center space-x-2"
                 >
@@ -167,6 +177,13 @@ export const App: React.FC = () => {
           onClose={() => setIsModalOpen(false)}
         />
       )}
+
+      {/* Vendor Showdown Modal */}
+      <VendorShowdownModal
+        isOpen={isShowdownOpen}
+        onClose={() => setIsShowdownOpen(false)}
+        initialVendorA={report?.targetDomain || "retool.com"}
+      />
 
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-slate-950 py-8 px-4 text-center text-xs text-slate-500">

@@ -124,6 +124,22 @@ async function runKeployTestSuite() {
       assert.ok(data.markdown.includes("INSTITUTIONAL DUE DILIGENCE AUDIT REPORT"));
       assert.ok(data.filename.endsWith(".md"));
     });
+
+    // Test 6: Head-to-head Vendor Showdown Comparison
+    await test("POST /api/audit/compare evaluates two vendors and returns battle-card verdict", async () => {
+      const res = await fetch(`${BASE_URL}/api/audit/compare`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vendorA: "retool.com", vendorB: "wework.com" }),
+      });
+
+      assert.strictEqual(res.status, 200);
+      const data = await res.json();
+      assert.strictEqual(data.success, true);
+      assert.ok(data.data.vendorA && data.data.vendorB);
+      assert.ok(data.data.verdict.saferVendor);
+      assert.ok(typeof data.data.verdict.riskDelta === "number");
+    });
   } finally {
     server.close();
   }
