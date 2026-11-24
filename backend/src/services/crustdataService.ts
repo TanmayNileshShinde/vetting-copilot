@@ -24,11 +24,10 @@ export interface CompanyFirmographics {
 }
 
 export class CrustdataService {
-  private apiKey: string;
   private baseUrl = "https://api.crustdata.com";
 
-  constructor() {
-    this.apiKey = process.env.CRUSTDATA_API_KEY || "";
+  private get apiKey(): string {
+    return process.env.CRUSTDATA_API_KEY || "";
   }
 
   private parseHeadcountFromRange(range?: string): number {

@@ -20,11 +20,10 @@ export interface OlostepRiskNotice {
 }
 
 export class OlostepService {
-  private apiKey: string;
   private baseUrl = "https://api.olostep.com/v1";
 
-  constructor() {
-    this.apiKey = process.env.OLOSTEP_API_KEY || "";
+  private get apiKey(): string {
+    return process.env.OLOSTEP_API_KEY || "";
   }
 
   /**
