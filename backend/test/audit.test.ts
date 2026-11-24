@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 import "dotenv/config";
 import assert from "node:assert";
 import http from "node:http";
@@ -134,6 +135,7 @@ async function runKeployTestSuite() {
   if (failed > 0) {
     process.exit(1);
   }
+  process.exit(0);
 }
 
 runKeployTestSuite();
