@@ -1,7 +1,8 @@
 if (!process.env.VERCEL) {
   try {
-    // Load local .env only outside Vercel (Vercel injects env vars directly)
-    require("dotenv").config();
+    // Load local .env dynamically outside Vercel so bundlers never trace dotenv into Serverless
+    const dotenvPkg = "dotenv";
+    require(dotenvPkg).config();
   } catch {
     // Ignore when dotenv is absent
   }
