@@ -3,6 +3,29 @@ import type { DueDiligenceReport, PresetCompany, ComparisonResult } from "../typ
 const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 const API_BASE = (import.meta as any).env?.VITE_API_URL || (isLocalhost ? "http://localhost:5000/api" : "/api");
 
+export interface BusHealthStatus {
+  online: boolean;
+  olostep: boolean;
+  crustdata: boolean;
+}
+
+export async function fetchBusHealth(): Promise<BusHealthStatus> {
+  try {
+    const res = await fetch(`${API_BASE}/audit/health`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) throw new Error(`Health HTTP ${res.status}`);
+    const json = await res.json();
+    return {
+      online: true,
+      olostep: Boolean(json?.integrations?.olostep),
+      crustdata: Boolean(json?.integrations?.crustdata),
+    };
+  } catch {
+    return { online: false, olostep: false, crustdata: false };
+  }
+}
+
 export async function fetchPresets(): Promise<PresetCompany[]> {
   try {
     const res = await fetch(`${API_BASE}/audit/presets`);
@@ -62,6 +85,7 @@ export async function runCompanyAudit(query: string): Promise<DueDiligenceReport
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
+      signal: AbortSignal.timeout(45000),
     });
 
     if (!res.ok) {

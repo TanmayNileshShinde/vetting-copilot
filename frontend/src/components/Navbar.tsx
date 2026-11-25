@@ -1,7 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ShieldCheck, GitBranch } from "lucide-react";
+import { fetchBusHealth, type BusHealthStatus } from "../services/api";
 
 export const Navbar: React.FC = () => {
+  const [bus, setBus] = useState<BusHealthStatus | null>(null);
+
+  useEffect(() => {
+    fetchBusHealth().then(setBus);
+  }, []);
+
+  const renderBusState = (configured: boolean) => {
+    if (!bus) {
+      return { led: "skeuo-led-amber", text: "PROBING", color: "text-amber-400" };
+    }
+    if (!bus.online) {
+      return { led: "skeuo-led-red", text: "OFFLINE", color: "text-rose-400" };
+    }
+    if (!configured) {
+      return { led: "skeuo-led-amber", text: "NO KEY", color: "text-amber-400" };
+    }
+    return { led: "skeuo-led-green", text: "ACTIVE", color: "text-emerald-400" };
+  };
+
+  const olostepState = renderBusState(Boolean(bus?.olostep));
+  const crustdataState = renderBusState(Boolean(bus?.crustdata));
+
   return (
     <header className="border-b border-white/10 bg-[#0d1118]/90 backdrop-blur-md sticky top-0 z-50 shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -31,16 +54,16 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center space-x-3">
           {/* Olostep Bus */}
           <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 text-xs font-mono">
-            <div className="skeuo-led-green" />
+            <div className={olostepState.led} />
             <span className="text-slate-400 text-[11px]">OLOSTEP BUS:</span>
-            <span className="text-emerald-400 font-bold text-[11px]">ACTIVE</span>
+            <span className={`${olostepState.color} font-bold text-[11px]`}>{olostepState.text}</span>
           </div>
 
           {/* Crustdata Bus */}
           <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-black/60 border border-white/10 text-xs font-mono">
-            <div className="skeuo-led-green" />
+            <div className={crustdataState.led} />
             <span className="text-slate-400 text-[11px]">CRUSTDATA BUS:</span>
-            <span className="text-emerald-400 font-bold text-[11px]">ACTIVE</span>
+            <span className={`${crustdataState.color} font-bold text-[11px]`}>{crustdataState.text}</span>
           </div>
 
           {/* GitHub Tactile Button */}
