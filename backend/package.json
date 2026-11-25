@@ -4,7 +4,7 @@
   "description": "Enterprise AI Due Diligence & Risk Intelligence Backend",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc --noEmit && esbuild src/server.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/server.js --banner:js=\"/* import 'express'; */\"",
+    "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "test": "tsc --noEmit && tsx test/audit.test.ts",
@@ -29,7 +29,6 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
-    "esbuild": "^0.28.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
