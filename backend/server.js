@@ -33708,6 +33708,9 @@ if (process.env.NODE_ENV !== "test" && !process.env.VERCEL && require.main === m
   });
 }
 var server_default = app;
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Object.assign(app, { default: app });
+}
 /*! Bundled license information:
 
 depd/index.js:
